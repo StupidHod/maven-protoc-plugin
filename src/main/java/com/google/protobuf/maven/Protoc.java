@@ -80,6 +80,9 @@ final class Protoc {
             command.add("--proto_path=" + protoPathElement);
         }
         command.add("--java_out=" + javaOutputDirectory);
+        // TODO(xiaofengguo): Make it configurable.
+        command.add("--plugin=protoc-gen-java_plugin=/Users/xiaofengguo/code/github/grpc-java/compiler/build/binaries/java_pluginExecutable/java_plugin");
+        command.add("--java_plugin_out=" + javaOutputDirectory);
         for (File protoFile : protoFiles) {
             command.add(protoFile.toString());
         }
