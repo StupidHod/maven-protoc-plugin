@@ -130,6 +130,11 @@ abstract class AbstractProtocMojo extends AbstractMojo {
     private boolean checkStaleness = false;
 
     /**
+     * @parameter default-value = ""
+     */
+    private String grpcPlugin;
+
+    /**
      * Executes the mojo.
      */
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -154,7 +159,7 @@ abstract class AbstractProtocMojo extends AbstractMojo {
                     // Quick fix to fix issues with two mvn installs in a row (ie no clean)
                     cleanDirectory(outputDirectory);
 
-                    Protoc protoc = new Protoc.Builder(protocExecutable, outputDirectory)
+                    Protoc protoc = new Protoc.Builder(protocExecutable, grpcPlugin, outputDirectory)
                             .addProtoPathElement(protoSourceRoot)
                             .addProtoPathElements(derivedProtoPathElements)
                             .addProtoPathElements(asList(additionalProtoPathElements))

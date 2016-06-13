@@ -10,9 +10,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Set;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.base.Preconditions.*;
 import static com.google.common.collect.Lists.newLinkedList;
 import static com.google.common.collect.Sets.newHashSet;
 
@@ -27,6 +25,7 @@ import static com.google.common.collect.Sets.newHashSet;
  */
 final class Protoc {
     private final String executable;
+    private final String grpcPlugin;
     private final ImmutableSet<File> protoPathElements;
     private final ImmutableSet<File> protoFiles;
     private final File javaOutputDirectory;
@@ -42,9 +41,10 @@ final class Protoc {
      * @param javaOutputDirectory The directory into which the java source files
      *                            will be generated.
      */
-    private Protoc(String executable, ImmutableSet<File> protoPath,
+    private Protoc(String executable, String grpcPlugin, ImmutableSet<File> protoPath,
                    ImmutableSet<File> protoFiles, File javaOutputDirectory) {
         this.executable = checkNotNull(executable, "executable");
+        this.grpcPlugin = grpcPlugin;
         this.protoPathElements = checkNotNull(protoPath, "protoPath");
         this.protoFiles = checkNotNull(protoFiles, "protoFiles");
         this.javaOutputDirectory = checkNotNull(javaOutputDirectory, "javaOutputDirectory");
@@ -80,9 +80,12 @@ final class Protoc {
             command.add("--proto_path=" + protoPathElement);
         }
         command.add("--java_out=" + javaOutputDirectory);
-        // TODO(xiaofengguo): Make it configurable.
-        command.add("--plugin=protoc-gen-java_plugin=/home/lamuguo/code/github/grpc-java/compiler/build/exe/java_plugin/protoc-gen-grpc-java");
-        command.add("--java_plugin_out=" + javaOutputDirectory);
+
+        if (!grpcPlugin.isEmpty()) {
+            command.add("--plugin=protoc-gen-java_plugin=" + grpcPlugin);
+            command.add("--java_plugin_out=" + javaOutputDirectory);
+        }
+
         for (File protoFile : protoFiles) {
             command.add(protoFile.toString());
         }
@@ -110,6 +113,7 @@ final class Protoc {
      */
     static final class Builder {
         private final String executable;
+        private final String grpcPlugin;
         private final File javaOutputDirectory;
         private Set<File> protopathElements;
         private Set<File> protoFiles;
@@ -125,8 +129,9 @@ final class Protoc {
          * @throws IllegalArgumentException If the {@code javaOutputDirectory} is
          *                                  not a directory.
          */
-        public Builder(String executable, File javaOutputDirectory) {
+        public Builder(String executable, String grpcPlugin, File javaOutputDirectory) {
             this.executable = checkNotNull(executable, "executable");
+            this.grpcPlugin = checkNotNull(grpcPlugin, "");
             this.javaOutputDirectory = checkNotNull(javaOutputDirectory);
             checkArgument(javaOutputDirectory.isDirectory());
             this.protoFiles = newHashSet();
@@ -212,7 +217,7 @@ final class Protoc {
          */
         public Protoc build() {
             checkState(!protoFiles.isEmpty());
-            return new Protoc(executable, ImmutableSet.copyOf(protopathElements),
+            return new Protoc(executable, grpcPlugin, ImmutableSet.copyOf(protopathElements),
                     ImmutableSet.copyOf(protoFiles), javaOutputDirectory);
         }
     }
