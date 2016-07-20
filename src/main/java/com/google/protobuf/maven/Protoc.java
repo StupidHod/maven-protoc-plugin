@@ -50,6 +50,7 @@ final class Protoc {
         this.javaOutputDirectory = checkNotNull(javaOutputDirectory, "javaOutputDirectory");
         this.error = new CommandLineUtils.StringStreamConsumer();
         this.output = new CommandLineUtils.StringStreamConsumer();
+        //System.out.println("after init protoc");
     }
 
     /**
@@ -63,7 +64,7 @@ final class Protoc {
         Commandline cl = new Commandline();
         cl.setExecutable(executable);
         cl.addArguments(buildProtocCommand().toArray(new String[]{}));
-        //System.out.println("cl = {{" + cl + "}}");
+        ////System.out.println("cl = {{" + cl + "}}");
         return CommandLineUtils.executeCommandLine(cl, null, output, error);
     }
 
@@ -137,6 +138,7 @@ final class Protoc {
             checkArgument(javaOutputDirectory.isDirectory());
             this.protoFiles = newHashSet();
             this.protopathElements = newHashSet();
+            //System.out.println("after init build");
         }
 
         /**
@@ -153,7 +155,7 @@ final class Protoc {
         public Builder addProtoFile(File protoFile) {
             checkNotNull(protoFile);
             checkArgument(protoFile.isFile());
-            checkArgument(protoFile.getName().endsWith(".proto1"));
+            checkArgument(protoFile.getName().endsWith(".proto"));
             checkProtoFileIsInProtopath(protoFile);
             protoFiles.add(protoFile);
             return this;
@@ -179,8 +181,14 @@ final class Protoc {
          * @see #addProtoFile(File)
          */
         public Builder addProtoFiles(Iterable<File> protoFiles) {
-            for (File protoFile : protoFiles) {
-                addProtoFile(protoFile);
+            try {
+                for (File protoFile : protoFiles) {
+                    if (protoFile != null) addProtoFile(protoFile);
+                }
+
+                //System.out.println("after addProtoFiles");
+            }catch (Exception e){
+                //System.out.println(e);
             }
             return this;
         }
@@ -209,6 +217,7 @@ final class Protoc {
             for (File protopathElement : protopathElements) {
                 addProtoPathElement(protopathElement);
             }
+            //System.out.println("after addProtoPathElements");
             return this;
         }
 
@@ -218,6 +227,7 @@ final class Protoc {
          */
         public Protoc build() {
             checkState(!protoFiles.isEmpty());
+            //System.out.println("after build");
             return new Protoc(executable, grpcPlugin, ImmutableSet.copyOf(protopathElements),
                     ImmutableSet.copyOf(protoFiles), javaOutputDirectory);
         }

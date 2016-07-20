@@ -46,7 +46,7 @@ import static org.codehaus.plexus.util.FileUtils.getFiles;
  */
 abstract class AbstractProtocMojo extends AbstractMojo {
 
-    private static final String PROTO_FILE_SUFFIX = ".proto1";
+    private static final String PROTO_FILE_SUFFIX = ".proto";
 
     private static final String DEFAULT_INCLUDES = "**/*" + PROTO_FILE_SUFFIX;
 
@@ -81,7 +81,7 @@ abstract class AbstractProtocMojo extends AbstractMojo {
     private File[] additionalProtoPathElements = new File[]{};
 
     /**
-     * Since {@code protoc} cannot access jars, proto1 files in dependencies are extracted to this location
+     * Since {@code protoc} cannot access jars, proto files in dependencies are extracted to this location
      * and deleted on exit. This directory is always cleaned during execution.
      *
      * @parameter expression="${project.build.directory}/protoc-dependencies"
@@ -100,7 +100,7 @@ abstract class AbstractProtocMojo extends AbstractMojo {
     /**
      * Set this to {@code false} to disable hashing of dependent jar paths.
      * <p/>
-     * This plugin expands jars on the classpath looking for embedded .proto1 files.
+     * This plugin expands jars on the classpath looking for embedded .proto files.
      * Normally these paths are hashed (MD5) to avoid issues with long file names on windows.
      * However if this property is set to {@code false} longer paths will be used.
      *
@@ -147,24 +147,30 @@ abstract class AbstractProtocMojo extends AbstractMojo {
                 ImmutableSet<File> outputFiles = findGeneratedFilesInDirectory(getOutputDirectory());
 
                 if (protoFiles.isEmpty()) {
-                    getLog().info("No proto1 files to compile.");
+                    getLog().info("No proto files to compile.");
                 } else if (checkStaleness && ((lastModified(protoFiles) + staleMillis) < lastModified(outputFiles))) {
                     getLog().info("Skipping compilation because target directory newer than sources.");
                     attachFiles();
                 } else {
+                    //System.out.println("before makeProtoPathFromJars");
                     ImmutableSet<File> derivedProtoPathElements =
                             makeProtoPathFromJars(temporaryProtoFileDirectory, getDependencyArtifactFiles());
                     outputDirectory.mkdirs();
 
                     // Quick fix to fix issues with two mvn installs in a row (ie no clean)
                     cleanDirectory(outputDirectory);
-
+                    //System.out.println("before protoc");
+                    //System.out.println(protoSourceRoot);
+                    //System.out.println(derivedProtoPathElements);
+                    //System.out.println(additionalProtoPathElements);
+                    //System.out.println(protoFiles);
                     Protoc protoc = new Protoc.Builder(protocExecutable, grpcPlugin, outputDirectory)
                             .addProtoPathElement(protoSourceRoot)
                             .addProtoPathElements(derivedProtoPathElements)
                             .addProtoPathElements(asList(additionalProtoPathElements))
                             .addProtoFiles(protoFiles)
                             .build();
+                    //System.out.println("after protoc");
                     final int exitStatus = protoc.compile();
                     if (exitStatus != 0) {
                         getLog().error("protoc failed output: " + protoc.getOutput());
@@ -234,10 +240,10 @@ abstract class AbstractProtocMojo extends AbstractMojo {
      * @return A set of all dependency artifacts.
      */
     private ImmutableSet<File> getDependencyArtifactFiles() {
-        //System.out.println("enter getDependencyArtifactFiles");
+        ////System.out.println("enter getDependencyArtifactFiles");
         Set<File> dependencyArtifactFiles = newHashSet();
         for (Artifact artifact : getDependencyArtifacts()) {
-            //System.out.println(artifact.getFile().getName());
+            ////System.out.println(artifact.getFile().getName());
             dependencyArtifactFiles.add(artifact.getFile());
         }
         return ImmutableSet.copyOf(dependencyArtifactFiles);
@@ -263,6 +269,7 @@ abstract class AbstractProtocMojo extends AbstractMojo {
                 // create the jar file. the constructor validates.
                 JarFile classpathJar;
                 try {
+                    //System.out.println(classpathElementFile.getName());
                     classpathJar = new JarFile(classpathElementFile);
                 } catch (IOException e) {
                     throw new IllegalArgumentException(format(
