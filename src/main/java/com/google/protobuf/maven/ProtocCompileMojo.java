@@ -9,8 +9,8 @@ import java.util.List;
 /**
  * This mojo executes the {@code protoc} compiler for generating java sources
  * from protocol buffer definitions. It also searches dependency artifacts for
- * proto files and includes them in the protopath so that they can be
- * referenced. Finally, it adds the proto files to the project as resources so
+ * proto1 files and includes them in the protopath so that they can be
+ * referenced. Finally, it adds the proto1 files to the project as resources so
  * that they are included in the final artifact.
  *
  * @phase generate-sources
@@ -23,7 +23,7 @@ public final class ProtocCompileMojo extends AbstractProtocMojo {
     /**
      * The source directories containing the sources to be compiled.
      *
-     * @parameter default-value="${basedir}/src/main/proto"
+     * @parameter default-value="${basedir}/src/main/proto1"
      * @required
      */
     private File protoSourceRoot;
@@ -58,6 +58,6 @@ public final class ProtocCompileMojo extends AbstractProtocMojo {
     protected void attachFiles() {
         project.addCompileSourceRoot(outputDirectory.getAbsolutePath());
         projectHelper.addResource(project, protoSourceRoot.getAbsolutePath(),
-                ImmutableList.of("**/*.proto"), ImmutableList.of());
+                ImmutableList.of("**/*.proto1"), ImmutableList.of());
     }
 }

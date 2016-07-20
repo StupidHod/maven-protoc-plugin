@@ -16,7 +16,7 @@ public final class ProtocTestCompileMojo extends AbstractProtocMojo {
     /**
      * The source directories containing the sources to be compiled.
      *
-     * @parameter default-value="${basedir}/src/test/proto"
+     * @parameter default-value="${basedir}/src/test/proto1"
      * @required
      */
     private File protoTestSourceRoot;
@@ -33,7 +33,7 @@ public final class ProtocTestCompileMojo extends AbstractProtocMojo {
     protected void attachFiles() {
         project.addTestCompileSourceRoot(outputDirectory.getAbsolutePath());
         projectHelper.addTestResource(project, protoTestSourceRoot.getAbsolutePath(),
-                ImmutableList.of("**/*.proto"), ImmutableList.of());
+                ImmutableList.of("**/*.proto1"), ImmutableList.of());
     }
 
     @Override

@@ -2,6 +2,11 @@
 *** Maven Protocol Buffers (protoc) Plugin ***
 **********************************************
 
+This project fork from https://github.com/xolstice/protobuf-maven-plugin, thanks for his contribution.
+
+The origin version only will resolve the dependency jar, uncompresse the jar package add --proto_path=(the parent directory of the .proto file) as arguments protoc command.
+However, the protoc may can not resolve the package path of the .proto file, so I add all the ancestor's path of the .proto file as proto_path to the command.
+
 A minimal configuration to invoke this plugin would be:
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"

@@ -37,7 +37,7 @@ final class Protoc {
      *
      * @param executable          The path to the {@code protoc} executable.
      * @param protoPath           The directories in which to search for imports.
-     * @param protoFiles          The proto source files to compile.
+     * @param protoFiles          The proto1 source files to compile.
      * @param javaOutputDirectory The directory into which the java source files
      *                            will be generated.
      */
@@ -63,6 +63,7 @@ final class Protoc {
         Commandline cl = new Commandline();
         cl.setExecutable(executable);
         cl.addArguments(buildProtocCommand().toArray(new String[]{}));
+        //System.out.println("cl = {{" + cl + "}}");
         return CommandLineUtils.executeCommandLine(cl, null, output, error);
     }
 
@@ -139,20 +140,20 @@ final class Protoc {
         }
 
         /**
-         * Adds a proto file to be compiled. Proto files must be on the protopath
-         * and this method will fail if a proto file is added without first adding a
+         * Adds a proto1 file to be compiled. Proto files must be on the protopath
+         * and this method will fail if a proto1 file is added without first adding a
          * parent directory to the protopath.
          *
          * @param protoFile
          * @return The builder.
-         * @throws IllegalStateException If a proto file is added without first
+         * @throws IllegalStateException If a proto1 file is added without first
          *                               adding a parent directory to the protopath.
          * @throws NullPointerException  If {@code protoFile} is {@code null}.
          */
         public Builder addProtoFile(File protoFile) {
             checkNotNull(protoFile);
             checkArgument(protoFile.isFile());
-            checkArgument(protoFile.getName().endsWith(".proto"));
+            checkArgument(protoFile.getName().endsWith(".proto1"));
             checkProtoFileIsInProtopath(protoFile);
             protoFiles.add(protoFile);
             return this;
@@ -213,7 +214,7 @@ final class Protoc {
 
         /**
          * @return A configured {@link Protoc} instance.
-         * @throws IllegalStateException If no proto files have been added.
+         * @throws IllegalStateException If no proto1 files have been added.
          */
         public Protoc build() {
             checkState(!protoFiles.isEmpty());
